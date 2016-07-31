@@ -1,5 +1,6 @@
 include_rules
 : src/*.o \
+src/cuda/cuda.a \
 src/math/math.a \
 src/common/common.a \
 |> $(CC) %f -o %o $(CLFLAGS) |> parallel_cuda
