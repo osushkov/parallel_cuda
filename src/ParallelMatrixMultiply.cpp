@@ -21,12 +21,10 @@ struct ParallelMatrixMultiply::ParallelMatrixMultiplyImpl {
   ~ParallelMatrixMultiplyImpl() { stopWorkers(); }
 
   void PushTask(const AsyncTask &task) {
-    cout << "pt s" << endl;
     std::unique_lock<std::mutex> lk(m);
     tasks.push_back(task);
 
     cv.notify_one();
-    cout << "pt e" << endl;
   }
 
   void createWorkers(unsigned numWorkers) {
@@ -49,9 +47,7 @@ struct ParallelMatrixMultiply::ParallelMatrixMultiplyImpl {
 
             lk.unlock();
 
-            cout << i << endl;
             doTask(task);
-            cout << "**" << i << " " << lk.owns_lock() << endl;
           }
         }
       });
