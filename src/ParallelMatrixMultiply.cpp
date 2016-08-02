@@ -20,11 +20,18 @@ struct ParallelMatrixMultiply::ParallelMatrixMultiplyImpl {
 
   ~ParallelMatrixMultiplyImpl() { stopWorkers(); }
 
-  void PushTask(const AsyncTask &task) {}
+  void PushTask(const AsyncTask &task) {
+    cout << "pt s" << endl;
+    std::unique_lock<std::mutex> lk(m);
+    tasks.push_back(task);
+
+    cv.notify_one();
+    cout << "pt e" << endl;
+  }
 
   void createWorkers(unsigned numWorkers) {
     for (unsigned i = 0; i < numWorkers; i++) {
-      workers.emplace_back([this] {
+      workers.emplace_back([this, i] {
         while (true) {
           std::unique_lock<std::mutex> lk(m);
 
@@ -40,8 +47,11 @@ struct ParallelMatrixMultiply::ParallelMatrixMultiplyImpl {
             AsyncTask task = tasks.back();
             tasks.pop_back();
 
-            lk.release();
+            lk.unlock();
+
+            cout << i << endl;
             doTask(task);
+            cout << "**" << i << " " << lk.owns_lock() << endl;
           }
         }
       });
