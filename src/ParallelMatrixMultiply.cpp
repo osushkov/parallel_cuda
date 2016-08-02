@@ -27,7 +27,10 @@ struct ParallelMatrixMultiply::ParallelMatrixMultiplyImpl {
       workers.emplace_back([this] {
         while (true) {
           std::unique_lock<std::mutex> lk(m);
-          cv.wait(lk, [this]() { return !tasks.empty() || shouldStop; });
+
+          if (tasks.empty() && !shouldStop) {
+            cv.wait(lk, [this]() { return !tasks.empty() || shouldStop; });
+          }
 
           if (shouldStop) {
             break;
