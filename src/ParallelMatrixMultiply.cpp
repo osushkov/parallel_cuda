@@ -48,7 +48,10 @@ struct ParallelMatrixMultiply::ParallelMatrixMultiplyImpl {
     }
   }
 
-  void doTask(const AsyncTask &task) {}
+  void doTask(const AsyncTask &task) {
+    auto result = task.lhs * task.rhs;
+    task.resultCallback(result);
+  }
 
   void stopWorkers(void) {
     {

@@ -1,6 +1,7 @@
 CC = g++
 CUDACC = nvcc
 
+CCFLAGS += -pthread
 CCFLAGS += -std=c++11
 CCFLAGS += -I/usr/local/include -I/usr/include/eigen3
 CCFLAGS += -Wall -Wno-deprecated-declarations
@@ -21,4 +22,6 @@ endif
 
 CLFLAGS += -L/usr/local/cuda/lib64 -lcudart
 CLFLAGS += -L/usr/local/lib
-CLFLAGS += -lpthread
+CLFLAGS += -pthread
+CLFLAGS += -std=c++11
+CLFLAGS += -Wl,--no-as-needed
