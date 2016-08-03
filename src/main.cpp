@@ -1,5 +1,6 @@
 
 #include "AsyncTask.hpp"
+#include "Constants.hpp"
 #include "ParallelMatrixMultiply.hpp"
 #include "common/Common.hpp"
 #include "math/Math.hpp"
@@ -10,9 +11,7 @@
 #include <utility>
 
 EMatrix createMatrix(void) {
-  static constexpr unsigned SIZE = 1000;
-
-  EMatrix result(SIZE, SIZE);
+  EMatrix result(MATRIX_SIZE, MATRIX_SIZE);
 
   for (int r = 0; r < result.rows(); r++) {
     for (int c = 0; c < result.cols(); c++) {
@@ -46,7 +45,7 @@ int main(int argc, char **argv) {
   // }
 
   // Parallel
-  for (unsigned i = 0; i < 1000; i++) {
+  for (unsigned i = 0; i < TASKS; i++) {
     AsyncTask task(matrices[rand() % matrices.size()], matrices[rand() % matrices.size()],
                    [&](const EMatrix &result) {
                      std::unique_lock<std::mutex> lk(m);
@@ -61,11 +60,11 @@ int main(int argc, char **argv) {
 
   while (true) {
     std::unique_lock<std::mutex> lk(m);
-    if (numResults >= 1000) {
+    if (numResults >= TASKS) {
       break;
     }
 
-    cv.wait(lk, [&numResults]() { return numResults >= 1000; });
+    cv.wait(lk, [&numResults]() { return numResults >= TASKS; });
   }
 
   return 0;

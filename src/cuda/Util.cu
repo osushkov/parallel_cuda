@@ -1,7 +1,9 @@
 
 #include "Util.hpp"
+#include "Util.cuh"
 #include <iostream>
 #include <cassert>
+#include <cuda_runtime.h>
 
 using namespace cuda;
 

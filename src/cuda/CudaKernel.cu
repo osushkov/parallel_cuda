@@ -14,6 +14,10 @@ using namespace std;
 static constexpr int tpbX = 32;
 static constexpr int tpbY = 32;
 
+__device__ float *Elem(DeviceMatrixView v, unsigned r, unsigned c) {
+  assert(r < v.rows && c < v.cols);
+  return (float *)((char *)v.data + r * v.pitch) + c;
+}
 
 __global__ void multKernel(DeviceMatrixView lhs, DeviceMatrixView rhs, DeviceMatrixView out,
                            unsigned spitch) {
@@ -41,11 +45,11 @@ __global__ void multKernel(DeviceMatrixView lhs, DeviceMatrixView rhs, DeviceMat
     const int rhsRow = chunkOffset + threadIdx.y;
     const int rhsCol = outCol;
 
-    if (lhsCol < lhs.cols) {
-      lhsChunk[chunkIndex] = *lhs.Elem(lhsRow, lhsCol);
+    if (lhsRow < lhs.rows && lhsCol < lhs.cols) {
+      lhsChunk[chunkIndex] = *Elem(lhs, lhsRow, lhsCol);
     }
-    if (rhsRow < rhs.rows) {
-      rhsChunk[chunkIndex] = *rhs.Elem(rhsRow, rhsCol);
+    if (rhsRow < rhs.rows && rhsCol < rhs.cols) {
+      rhsChunk[chunkIndex] = *Elem(rhs, rhsRow, rhsCol);
     }
 
     __syncthreads();
@@ -60,7 +64,7 @@ __global__ void multKernel(DeviceMatrixView lhs, DeviceMatrixView rhs, DeviceMat
   }
 
   if (outRow < out.rows && outCol < out.cols) {
-    float *outElem = out.Elem(outRow, outCol);
+    float *outElem = Elem(out, outRow, outCol);
     *outElem = value;
   }
 }
